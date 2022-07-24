@@ -1,0 +1,38 @@
+---
+title: "Warshaw Voting Cleaning"
+output: html_notebook
+---
+Clear the field.
+```{r}
+rm(list=ls())
+```
+
+Load in the necessary libraries.
+```{r}
+library(dplyr)
+library(tidyr)
+```
+
+Read in the files from Chris Warshaw.
+```{r}
+mun16<-read.csv("/Users/miritfriedman/Desktop/Squeeze Data/voting/city_presidential_vote_2016.csv")
+mun16<-subset(mun16, select=c(2,3,5,6,7))
+
+mun20<-read.csv("/Users/miritfriedman/Desktop/Squeeze Data/voting/city_presidential_vote_2020.csv")
+mun20<-subset(mun20, select=c(2,3,5,6,7))
+mun20<-rename(mun20,"FIPS"="place_fips")
+
+twn20<-read.csv("/Users/miritfriedman/Desktop/Squeeze Data/voting/countysub_presidential_vote_2020.csv")
+twn20<-subset(twn20, select=c(2,3,6,7,8))
+twn20<-rename(twn20,"city"="countysub", "FIPS"="countysub_fips")
+
+master_FIPS<-read.csv("/Users/miritfriedman/Desktop/Squeeze Data/DataMerge/2017_Merged_list_2022-06-07.csv")
+master_FIPS<-subset(master_FIPS, select=c(2,6))
+
+vote<-rbind(twn20,mun20)
+vote<-vote %>%
+      filter(FIPS %in% master_FIPS$FIPS)
+
+anti<-anti_join(master_FIPS, vote, by='FIPS')
+```
+
